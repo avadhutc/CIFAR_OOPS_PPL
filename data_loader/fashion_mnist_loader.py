@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""
-Implements the FashionMnistLoader class by inheriting the DataLoader base class.
-
-Keras provides the FashionMNIST dataset in its datasets package.
-This class loads the dataset from the keras library and pre-process it.
-
-Created on Sun Apr 22 20:39:33 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 from base.data_loader_base import DataLoader
 from keras.datasets import fashion_mnist
 import matplotlib.pyplot as plt

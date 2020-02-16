@@ -1,16 +1,3 @@
-#!/usr/bin/env python3
-"""
-Defines an abstract class GridSearchBase, that wraps the hyperparameter search process. 
-
-It search for a optimal set of hyperparameters to train the ConvNet model.
-
-Created on Thu Apr 26 01:28:33 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasClassifier
 from base.model_base import BaseModel

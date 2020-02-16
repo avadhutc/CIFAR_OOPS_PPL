@@ -2,6 +2,7 @@ from base.data_loader_base import DataLoader
 import os
 import pickle
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
@@ -18,9 +19,9 @@ class CifarLoader(DataLoader):
 	def load_dataset(self):
 		
 		with open(self.config.config_namespace.dataset_path + 'split.pickle', 'rb') as handle:
-    	data = pickle.load(handle)
+			data = pickle.load(handle)
 
-    	X = pd.DataFrame.from_dict(data)
+		X = pd.DataFrame.from_dict(data)
 		# Read the training data images and thier labels from the disk.
 		self.train_data = self.read_images(X['x_train'])
 		self.train_labels = self.read_labels(X['y_train'])
@@ -43,15 +44,15 @@ class CifarLoader(DataLoader):
 	  		#print(os.path.join(path, directory))
 	  		dir_path = os.path.join(self.config.config_namespace.dataset_path, directory)
 	  		if os.path.isdir(dir_path):
-		    	#print(1)
-		    	for filename in os.listdir(dir_path):
-		      		#print(dir_path + '/' + filename)
-		      		#data = pd.read_excel(filename)
-		      		data = {'path' : dir_path + '/' + filename, 'label': directory}
-		      		appended_data.append(data)
+				  #print(1)
+		    	  for filename in os.listdir(dir_path):
+					  #print(dir_path + '/' + filename)
+		      		  #data = pd.read_excel(filename)
+		      		  data = {'path' : dir_path + '/' + filename, 'label': directory}
+		      		  appended_data.append(data)
 
-				with open(self.config.config_namespace.dataset_path + 'dataset.pickle', 'wb') as handle:
-		    		pickle.dump(appended_data, handle)		
+		with open(self.config.config_namespace.dataset_path + 'dataset.pickle', 'wb') as handle:
+			pickle.dump(appended_data, handle)		
  		
 		return
 
@@ -59,13 +60,13 @@ class CifarLoader(DataLoader):
 				
 		#path = './dataset/cifar_data_all'
 		with open(self.config.config_namespace.dataset_path + 'dataset.pickle', 'rb') as handle:
-    	data = pickle.load(handle)
+			data = pickle.load(handle)
 
-    	X = pd.DataFrame.from_dict(data)
-    	encoder= preprocessing.LabelEncoder()
+		X = pd.DataFrame.from_dict(data)
+		encoder= preprocessing.LabelEncoder()
 
 		transfomed_label = encoder.fit_transform(X['label'])
-    	X_trainm, X_test, y_trainm, y_test = train_test_split(X['path'], transfomed_label, 
+		X_trainm, X_test, y_trainm, y_test = train_test_split(X['path'], transfomed_label, 
                                                     test_size=self.config.config_namespace.test_size, 
                                                     random_state=self.config.config_namespace.test_split_random_state)
 		#print(X_trainm.shape, X_test.shape, y_trainm.shape, y_test.shape)
