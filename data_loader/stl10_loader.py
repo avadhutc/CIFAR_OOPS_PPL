@@ -1,109 +1,117 @@
-#!/usr/bin/env python3
-"""
-Implements the Stl10Loader class by inheriting the DataLoader base class.
-
-STL-10 dataset is loaded from an external path (i.e., in dataset folder) and preprocessed.
-
-Created on Sun Apr 22 20:54:32 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 from base.data_loader_base import DataLoader
 import os
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+from keras.preprocessing.image import load_img, img_to_array, array_to_img
 from keras.utils import to_categorical
 
-class Stl10Loader(DataLoader):
+class CifarLoader(DataLoader):
 
 	def __init__(self, config):
-		"""
-		Constructor to initialize the training and testing datasets for STL-10 dataset.
-
-		:param config: the JSON configuration namespace.
-		:return none
-		:raises none
-		"""
-
+		
 		super().__init__(config)
 		return
 
 	def load_dataset(self):
-		"""
-		Loads the STL-10 image dataset from the disk location, and
-		Updates the respective class members.
+		
+		with open(self.config.config_namespace.dataset_path + 'split.pickle', 'rb') as handle:
+    	data = pickle.load(handle)
 
-		:param none
-		:return none
-		:raises none
-		"""
-
-		# Paths to the training and testing data for STL-10 dataset.
-		path = './dataset/stl-10'
-		train_data_path = os.path.join(path, 'train_X.bin')
-		train_label_path = os.path.join(path, 'train_y.bin')
-		test_data_path = os.path.join(path, 'test_X.bin')
-		test_label_path = os.path.join(path, 'test_y.bin')
-
+    	X = pd.DataFrame.from_dict(data)
 		# Read the training data images and thier labels from the disk.
-		self.train_data = self.read_images(train_data_path)
-		self.train_labels = self.read_labels(train_label_path)
+		self.train_data = self.read_images(X['x_train'])
+		self.train_labels = self.read_labels(X['y_train'])
+
+		# Read the validation data images and thier labels from the disk.
+		self.train_data = self.read_images(X['x_val'])
+		self.train_labels = self.read_labels(X['y_val'])
 
 		# Read the test data images and thier labels from the disk.
-		self.test_data = self.read_images(test_data_path)
-		self.test_labels = self.read_labels(test_label_path)
+		self.test_data = self.read_images(X['x_test'])
+		self.test_labels = self.read_labels(X['y_test'])
 
 		return
 
+	def create_dataset(self):
+		
+		appended_data = []		
+		for directory in os.listdir(self.config.config_namespace.dataset_path):
+	  		#print(directory)
+	  		#print(os.path.join(path, directory))
+	  		dir_path = os.path.join(self.config.config_namespace.dataset_path, directory)
+	  		if os.path.isdir(dir_path):
+		    	#print(1)
+		    	for filename in os.listdir(dir_path):
+		      		#print(dir_path + '/' + filename)
+		      		#data = pd.read_excel(filename)
+		      		data = {'path' : dir_path + '/' + filename, 'label': directory}
+		      		appended_data.append(data)
+
+				with open(self.config.config_namespace.dataset_path + 'dataset.pickle', 'wb') as handle:
+		    		pickle.dump(appended_data, handle)		
+ 		
+		return
+
+	def split_dataset(self):
+				
+		#path = './dataset/cifar_data_all'
+		with open(self.config.config_namespace.dataset_path + 'dataset.pickle', 'rb') as handle:
+    	data = pickle.load(handle)
+
+    	X = pd.DataFrame.from_dict(data)
+    	encoder= preprocessing.LabelEncoder()
+
+		transfomed_label = encoder.fit_transform(X['label'])
+    	X_trainm, X_test, y_trainm, y_test = train_test_split(X['path'], transfomed_label, 
+                                                    test_size=self.config.config_namespace.test_size, 
+                                                    random_state=self.config.config_namespace.test_split_random_state)
+		#print(X_trainm.shape, X_test.shape, y_trainm.shape, y_test.shape)
+		X_train, X_val, y_train, y_val = train_test_split(X_trainm, y_trainm, 
+		                                                    test_size=self.config.config_namespace.val_size, 
+		                                                    random_state=self.config.config_namespace.val_split_random_state)
+		#print(X_train.shape, X_val.shape, X_test.shape y_train.shape, y_val.shape)
+		split_data = {"x_train": X_train, "y_train": y_train, "x_val": X_val, "y_val": y_val,
+					  "x_test": X_test, "y_test": y_test}
+		with open(self.config.config_namespace.dataset_path + 'split.pickle', 'wb') as handle:
+		    		pickle.dump(split_data, handle)
+
+		print("Train data size:", X_trainm.shape[0])
+		print("Validation data size:", X_val.shape[0])
+		print("Test data size:", X_test.shape[0])
+
+				
+		return
+
 	def read_images(self, path_to_data):
-		"""
-		Reads a binary file from the disk that contains image data, and
-		stores them in numpy array.
+		
+		X = []
+		for img_name in path_to_data:
+		  im = load_img(img_name, target_size=(self.config.config_namespace.image_width,
+		  				self.config.config_namespace.image_height))
+		  im = img_to_array(im)
+		  X.append(im)
+		  
+		X = np.array(X)
 
-		:param none
-		:return none
-		:raises none
-		"""
-
-		# FIXME: change the reshape's arguments with the config namespace keys.
-		with open(path_to_data, 'rb') as f:
-			everything = np.fromfile(f, dtype=np.uint8)
-			images = np.reshape(everything, (-1, 3, 96, 96))
-			images = np.transpose(images, (0, 3, 2, 1))
-			return images
+		return X		
 
 	def read_labels(self, path_to_labels):
-		"""
-		Reads a binary file from the disk that contains image labels, and
-		stores them in numpy array.
+		Y = []
+		for label in path_to_labels:		  
+		  Y.append(label)
+		  
+		Y = np.array(Y)
 
-		:param none
-		:return none
-		:raises none
-		"""
-
-		# FIXME: change the reshape's arguments with the config namespace keys.
-		with open(path_to_labels, 'rb') as f:
-			labels = np.fromfile(f, dtype=np.uint8)
-			return labels
+		return Y		
 
 	def display_data_element(self, which_data, index):
-		"""
-		Displays a data element from the STL-10 dataset (training/testing).
-
-		:param which_data: Specifies the dataset to be used (i.e., training or testing).
-		:param index: Specifies the index of the data element within a particular dataset.
-		:returns none
-		:raises none
-		"""
-
 		# Create a new figure.
 		plt.figure()
 
-		# FIXME: modify appropriately to include save to disk option. Refer FashionMNSIT's display function.
+		
 		if(which_data == "train_data"):
 			plt.imshow( self.train_data[index, : , : ] )
 			#plt.imshow( self.trainData[index, : , : ] )
@@ -124,23 +132,13 @@ class Stl10Loader(DataLoader):
 		return
 
 	def preprocessDataset(self):
-		"""
-		Preprocess the STL-10 dataset.
-
-		Performs normalization on data values of training and testing dataset, and
-		Converts the categorical class labels to boolean one-hot encoded vector for training and testing datasets.
-
-		:param none
-		:returns none
-		:raises none
-		"""
 		# Convert the integer pixel data to floating data to speed up keras execution.
-		#self.trainData = self.trainData.astype('float32')
-		#self.testData = self.testData.astype('float32')
+		self.trainData = self.trainData.astype('float32')
+		self.testData = self.testData.astype('float32')
 
 		# Rescale the pixel values from orignal values to the values in range 0 10 1.
-		#self.trainData = self.trainData / self.config.config_namespace.image_pixel_size
-		#self.testData = self.testData / self.config.config_namespace.image_pixel_size
+		self.trainData = self.trainData / self.config.config_namespace.image_pixel_size
+		self.testData = self.testData / self.config.config_namespace.image_pixel_size
 
 		# Convert from categorical to  boolean one hot encoded vector.
 		self.trainLabelsOneHot = to_categorical( self.train_labels )

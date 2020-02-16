@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""
-Defines an abstract class DataLoader, that wraps the dataset loading process. 
-Dataset can either be present in the library or on the disk.
-
-It also supports dataset printing options.
-
-Created on Sun Apr 22 20:17:31 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 import numpy as np
 
 class DataLoader(object):
@@ -32,6 +18,10 @@ class DataLoader(object):
 		self.train_data = np.array([])
 		self.train_labels = np.array([])
 
+		# Training Dataset's Data and Lables.
+		self.val_data = np.array([])
+		self.val_labels = np.array([])
+
 		# Testing Dataset's Data and Lables.
 		self.test_data = np.array([])
 		self.test_labels = np.array([])
@@ -44,10 +34,17 @@ class DataLoader(object):
 
 		# One-hot Encoded Label Vector.
 		self.train_label_one_hot  = np.array([])
+		self.val_label_one_hot  = np.array([])
 		self.test_label_one_hot  = np.array([])
 
 		# Load the dataset from disk/library.
 		self.load_dataset()
+
+		# create the dataset from disk/library.
+		self.create_dataset()
+
+		# create the dataset from disk/library.
+		self.split_dataset()
 
 		# Calculate the number of class labels and list them.
 		self.calculate_class_label_size()
@@ -60,6 +57,32 @@ class DataLoader(object):
 		return
 
 	def load_dataset(self):
+		"""
+		Loads the dataset.
+
+		:param none
+		:return none
+		:raises NotImplementedError: Implement this method.
+		"""
+
+		# Implement this method in the inherited class to read the dataset from the disk.
+		# Update respective data members of the DataLoader class.
+		raise NotImplementedError
+
+	def create_dataset(self):
+		"""
+		Loads the dataset.
+
+		:param none
+		:return none
+		:raises NotImplementedError: Implement this method.
+		"""
+
+		# Implement this method in the inherited class to read the dataset from the disk.
+		# Update respective data members of the DataLoader class.
+		raise NotImplementedError
+
+	def split_dataset(self):
 		"""
 		Loads the dataset.
 
