@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-"""
-Defines an abstract class BaseModel, that wraps the ConvNet model construction process. 
-
-It defines, configures, trains and evaluates a ConvNet model. 
-Also supports prediction of unknown class-labels on testing dataset.
-
-Saving and loading a predefined model are also supported.
-
-Created on Mon Apr 23 09:04:04 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 import numpy as np
 import os
 from keras.models import Sequential
