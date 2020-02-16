@@ -53,7 +53,7 @@ class DataLoader(object):
 		self.print_dataset_details()
 
 		# Preprocess the dataset (normalize, one-hot-shot encoding).
-		self.preprocess_dataset()
+		self.preprocessDataset()
 		return
 
 	def load_dataset(self):
@@ -139,7 +139,7 @@ class DataLoader(object):
 		# Implement this method in the inherited class to display a given data element.
 		raise NotImplementedError
 
-	def preprocess_dataset(self):
+	def preprocessDataset(self):
 		"""
 		Preprocess the dataset.
 

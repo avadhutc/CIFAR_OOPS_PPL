@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-"""
-ConvNet model for fashion_mnist dataset.
-
-Created on Mon Apr 23 09:44:25 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 from base.model_base import BaseModel
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Flatten

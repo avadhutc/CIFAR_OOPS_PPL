@@ -1,14 +1,3 @@
-#!/usr/bin/env python3
-"""
-Execution Flow for the FashionMNIST experiment.
-
-Created on Sun Apr 22 21:08:16 2018
-
-@author: Santosh Pattar
-@author: Veerabadrappa
-@version: 1.0
-"""
-
 # Reproduce results by seed-ing the random number generator.
 from numpy.random import seed
 seed(1)
